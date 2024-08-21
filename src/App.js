@@ -19,6 +19,8 @@ import { BiMessageDetail } from 'react-icons/bi'
 import axios from 'axios'
 import 'antd/dist/reset.css'
 import './App.css'
+import { adToBs } from '@sbmdkl/nepali-date-converter';
+
 
 const App = () => {
     const [notif, setNotif] = useState({ show: false, message: null, type: null })
@@ -162,7 +164,6 @@ const App = () => {
 
                         const request = await fetch(route)
                         const response = await request.json()
-
                         if (response.status === "ERROR")
                             throw response
 
@@ -185,6 +186,7 @@ const App = () => {
     const handleUpdateOtherElement = () => {
         try {
             if (selectedReportContent) {
+                console.log(selectedReportContent,'selectedReportContent')
                 updateAndInjectOtherElementPeriod(selectedReportContent, selectedPeriod, selectedPeriodType)
                 updateAndInjectSchoolNames(selectedReportContent, currentOrgUnits[0].id, orgUnits, orgUnitLevels)
             }
@@ -243,6 +245,17 @@ const App = () => {
         setVisibleListTei(false)
         setSelectedTEI(tei)
     }
+    const convertDateToBS = (dateString) => {
+        try{
+            const dateOnlyString = dateString.split('T')[0];
+            const nepaliDate = adToBs(dateOnlyString);
+            return nepaliDate;
+        }
+        catch(e){
+            return dateString;
+        }
+       
+    };
 
     const queryTeiList = async _ => {
         try {
@@ -273,6 +286,30 @@ const App = () => {
 
                 const request = await fetch(route)
                 const response = await request.json()
+          
+            response.trackedEntityInstances.forEach(instance => {
+                instance.attributes.forEach(attribute => {
+                    if (attribute.valueType === "AGE") {
+                        attribute.value = convertDateToBS(attribute.value);
+                    }
+                });
+            
+                if (instance.enrollments) {
+                    instance.enrollments.forEach(enrollment => {
+                        if (enrollment.enrollmentDate) {
+                            enrollment.enrollmentDate = convertDateToBS(enrollment.enrollmentDate);
+                        }
+                        if (enrollment.incidentDate) {
+                            enrollment.incidentDate = convertDateToBS(enrollment.incidentDate);
+                        }
+                        enrollment.attributes.forEach(attribute => {
+                            if (attribute.valueType === "AGE") {
+                                attribute.value = convertDateToBS(attribute.value);
+                            }
+                        });
+                    });
+                }
+            });
                 if (response.status === "ERROR")
                     throw response
 
@@ -390,7 +427,7 @@ const App = () => {
                     </div>
 
                     <div style={{ position: 'absolute', bottom: 10, left: 0, textAlign: 'center', width: '100%' }}>
-                        <div style={{ fontSize: '10px', color: '#00000050' }}>HWCA / version: {process.env.REACT_APP_VERSION}</div>
+                        {/* <div style={{ fontSize: '10px', color: '#00000050' }}>HWCA / version: {process.env.REACT_APP_VERSION}</div> */}
                     </div>
 
 
