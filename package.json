@@ -22,6 +22,7 @@
     "@dhis2/app-runtime": "^3.4.4",
     "@dhis2/ui": "^8.4.5",
     "@nextui-org/react": "^1.0.0-beta.10",
+    "@sbmdkl/nepali-date-converter": "^2.0.3",
     "antd": "^5.6.4",
     "axios": "^1.5.0",
     "d2-manifest": "^1.0.0",
