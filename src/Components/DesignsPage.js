@@ -25,6 +25,8 @@ import {
 } from '@dhis2/ui'
 
 import { QuestionCircleOutlined } from '@ant-design/icons';
+import { adToBs } from '@sbmdkl/nepali-date-converter';
+
 
 import { v4 as uuid } from 'uuid'
 import Scrollbars from 'react-custom-scrollbars-2'
@@ -1479,6 +1481,7 @@ const DesignsPage = ({
     try {
       setVisibleAddReport(true)
       setEditReport(true)
+      // console.log('hey')
       const content = await loadDataStore(`REPORT_${report.id}`, setLoadingInitState, null, {})
       if (!content)
         throw new Error(report.name + " Content not found !")
@@ -1530,7 +1533,7 @@ const DesignsPage = ({
                         <TableCell dense>
                           {
                             report.updatedAt && (
-                              <div className='text-muted'> {dayjs(report.updatedAt).format('DD/MM/YYYY')} </div>
+                              <div className='text-muted'> {dayjs(adToBs((report.updatedAt).split('T')[0])).format('DD/MM/YYYY')} </div>
                             )
                           }
 
