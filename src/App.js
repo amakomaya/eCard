@@ -186,7 +186,6 @@ const App = () => {
     const handleUpdateOtherElement = () => {
         try {
             if (selectedReportContent) {
-                console.log(selectedReportContent,'selectedReportContent')
                 updateAndInjectOtherElementPeriod(selectedReportContent, selectedPeriod, selectedPeriodType)
                 updateAndInjectSchoolNames(selectedReportContent, currentOrgUnits[0].id, orgUnits, orgUnitLevels)
             }
@@ -286,10 +285,10 @@ const App = () => {
 
                 const request = await fetch(route)
                 const response = await request.json()
-          
+                console.log(response,'response')
             response.trackedEntityInstances.forEach(instance => {
                 instance.attributes.forEach(attribute => {
-                    if (attribute.valueType === "AGE") {
+                    if (attribute.valueType === "AGE"|| attribute.valueType === "DATE") {
                         attribute.value = convertDateToBS(attribute.value);
                     }
                 });
