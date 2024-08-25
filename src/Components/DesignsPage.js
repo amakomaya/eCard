@@ -203,7 +203,6 @@ const DesignsPage = ({
       let payload = {}
       let payloadReportContent = {}
       const refreshReportList = await loadDataStore(process.env.REACT_APP_REPORTS_KEY, null, null, [])
-      console.log("refreshReportList:", refreshReportList)
 
       if (editReport && currentRepport && currentRepportContent) {
 
@@ -220,7 +219,6 @@ const DesignsPage = ({
         })
 
         const refreshCurrentReportContent = await loadDataStore(`REPORT_${currentRepport.id}`, null, null, {})
-        console.log("refreshCurrentReportContent: ", refreshCurrentReportContent)
 
         payloadReportContent = {
           ...refreshCurrentReportContent,
@@ -1481,7 +1479,6 @@ const DesignsPage = ({
     try {
       setVisibleAddReport(true)
       setEditReport(true)
-      // console.log('hey')
       const content = await loadDataStore(`REPORT_${report.id}`, setLoadingInitState, null, {})
       if (!content)
         throw new Error(report.name + " Content not found !")
