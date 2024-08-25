@@ -4,6 +4,7 @@ import axios from "axios"
 import dayjs from "dayjs"
 import { TRACKER_ENTITY_INSTANCES_ROUTE, DATA_STORE_ROUTE } from "../api.routes"
 import { ATTRIBUTE, COLOR, CURRENT, DATA_ELEMENT, DATE, DAY, ENROLLMENT, ENROLLMENT_DATE, IMAGE, INCIDENT_DATE, LABEL, MONTH, NOTIFICATON_WARNING, ORGANISATION_UNIT_NAME, OTHER_ELEMENT, SELECTED_DATE, TRACKER, YEAR } from "./constants"
+import { adToBs } from '@sbmdkl/nepali-date-converter';
 
 const drawCamember = async (legendTypeId, attribute_code, value, period, setNotif, periodType, legendContentList) => {
 
@@ -11,9 +12,6 @@ const drawCamember = async (legendTypeId, attribute_code, value, period, setNoti
   const current_legend = findTheRightLegend(current_legend_parent, period, periodType)
 
   const current_html_element = document.getElementById(attribute_code)
-  console.log("attribut code : ", attribute_code)
-
-  console.log(current_html_element)
 
   if (current_legend && current_html_element) {
 
@@ -380,7 +378,6 @@ export const inject_tei_into_html = (report, current_tei, selectedProgramTracker
     if (get_data_is === ENROLLMENT) {
       if (get_id) {
         const get_enrollment_html_id = get_id?.split('|')?.[1]
-
         if (get_enrollment_html_id === ENROLLMENT_DATE) {
           const html_el = my_container.querySelector("[id='" + get_id + "']")
           html_el.innerHTML = current_tei.enrollments?.[0]?.enrollmentDate ? dayjs(current_tei.enrollments?.[0]?.enrollmentDate).format("YYYY-MM-DD") : ""
@@ -411,21 +408,84 @@ export const inject_tei_into_html = (report, current_tei, selectedProgramTracker
         const html_el = my_container.querySelector("[id='" + get_id + "']")
 
 
-        if (get_data_has_legend === "NO") {
-          let found_element = null
-          const actuel_event = current_tei?.enrollments[0]?.events?.filter(ev => ev.programStage === get_programStage_id)?.[0]
+        // if (get_data_has_legend === "NO") {
+        //   let found_element = null
+        //   const actuel_event = current_tei?.enrollments[0]?.events?.filter(ev => ev.programStage === get_programStage_id)?.[0]
+
+        //   if (actuel_event && actuel_event?.dataValues?.length > 0 && get_programStage_id === actuel_event?.programStage && get_program_id === selectedProgramTrackerFromHTML?.id) {
+
+        //     found_element = actuel_event.dataValues.find(dv => dv.dataElement === get_dataElement_id)
+        //   }
+
+        //   if (found_element) {
+        //     html_el.innerHTML = found_element.value
+        //   }
+        // }
+
+        // if (get_data_has_legend === "NO") {
+        //   const matching_events = current_tei?.enrollments[0]?.events?.filter(ev => ev.programStage === get_programStage_id);
+        //   console.log(matching_events,'matching_events')
+
+        //   if (matching_events && matching_events.length > 0 && get_program_id === selectedProgramTrackerFromHTML?.id) {
+        //     matching_events.forEach(event => {
+        //       const found_element = event.dataValues.find(dv => dv.dataElement === get_dataElement_id);
+        //       console.log(found_element,'found_element')
+        //       if (found_element) {
+            
+        //         html_el.innerHTML += `<div>${found_element.value}</div>`;
+        //       }
+        //     });
+        //   }
+        // }
+        
 
 
-          if (actuel_event && actuel_event?.dataValues?.length > 0 && get_programStage_id === actuel_event?.programStage && get_program_id === selectedProgramTrackerFromHTML?.id) {
-
-            found_element = actuel_event.dataValues.find(dv => dv.dataElement === get_dataElement_id)
-          }
-
-          if (found_element) {
-            html_el.innerHTML = found_element.value
-          }
+      if (get_data_has_legend === "NO") {
+        const matching_events = current_tei?.enrollments[0]?.events?.filter(ev => ev.programStage === get_programStage_id);
+  
+        if (matching_events && matching_events.length > 0 && get_program_id === selectedProgramTrackerFromHTML?.id) {
+          html_el.innerHTML = '';
+  
+          const table = document.createElement('table');
+          table.style.width = '100%'; 
+          table.style.borderCollapse = 'collapse'; 
+          const headerRow = document.createElement('tr');
+          const eventDateHeader = document.createElement('th');
+          eventDateHeader.innerText = 'Event Date';
+          const valueHeader = document.createElement('th');
+          valueHeader.innerText = 'Value';
+          headerRow.appendChild(eventDateHeader);
+          headerRow.appendChild(valueHeader);
+          table.appendChild(headerRow);
+  
+          matching_events.sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+  
+          matching_events.forEach(event => {
+            const found_element = event.dataValues.find(dv => dv.dataElement === get_dataElement_id);
+  
+            if (found_element) {
+              const formattedEventDate = event.eventDate
+                ? adToBs((event.eventDate).split('T')[0])
+                : "No Event Date";
+  
+              const row = document.createElement('tr');
+  
+              const dateCell = document.createElement('td');
+              dateCell.innerHTML = formattedEventDate;
+  
+              const valueCell = document.createElement('td');
+              valueCell.innerHTML = found_element.value;
+  
+              row.appendChild(dateCell);
+              row.appendChild(valueCell);
+              table.appendChild(row);
+            }
+          });
+  
+          html_el.appendChild(table);
         }
-
+      }
+  
       }
     }
   }
